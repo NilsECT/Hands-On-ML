@@ -62,7 +62,8 @@ print(housing.describe())
 
 import matplotlib.pyplot as plt
 
-housing.hist(bins=50, figsize=(14, 10))
+fig = plt.figure()
+fig = housing.hist(bins=50, figsize=(14, 10))
 # plt.show()
 plt.savefig("./figs/housing_hist.pdf")
 plt.close()
