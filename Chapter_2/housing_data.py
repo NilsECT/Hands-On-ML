@@ -67,3 +67,24 @@ fig = housing.hist(bins=50, figsize=(14, 10))
 # plt.show()
 plt.savefig("./figs/housing_hist.pdf")
 plt.close()
+print()
+print("Created a histogram plot of the data in /figs named housing_hist.pdf")
+
+# the housing income is an important feature to determine the housing price
+# so in the test set this should be well represented
+import numpy as np
+
+# take the dataset and divide the median income into 5 groups
+housing["income_cat"] = pd.cut(housing["median_income"], bins=[0, 1.5, 3.0, 4.5, 6., np.inf], labels=[1, 2, 3, 4, 5])
+# this splits into 5 categories where category 1 contains all instances of values between 0 and 1.5
+# category contains instances of values between 1.5 to 3 and so on
+
+# How do these categories look?
+fig = plt.figure()
+fig = housing["income_cat"].value_counts().sort_index().plot.bar(rot=0, grid=True)
+plt.xlabel("Income category")
+plt.ylabel("Number of districts")
+plt.savefig("./figs/income_categories.pdf")
+plt.close()
+print()
+print("Created a barplot of the housing income categories in /figs named income_categories.pdf")
