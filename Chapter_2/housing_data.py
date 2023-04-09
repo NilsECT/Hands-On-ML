@@ -62,7 +62,6 @@ print(housing.describe())
 
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
 fig = housing.hist(bins=50, figsize=(14, 10))
 # plt.show()
 plt.savefig("./figs/housing_hist.pdf")
@@ -80,7 +79,6 @@ housing["income_cat"] = pd.cut(housing["median_income"], bins=[0, 1.5, 3.0, 4.5,
 # category contains instances of values between 1.5 to 3 and so on
 
 # How do these categories look?
-fig = plt.figure()
 fig = housing["income_cat"].value_counts().sort_index().plot.bar(rot=0, grid=True)
 plt.xlabel("Income category")
 plt.ylabel("Number of districts")
@@ -111,3 +109,26 @@ strat_train_set, strat_test_set = strat_splits[0]
 print()
 print("Taking a look at the proportions of each income category in the test set:")
 print(strat_test_set["income_cat"].value_counts() / len(strat_test_set))
+
+##################################################################
+# We've looked at the data set with a bird's eye view and split it
+# We will now take a closer look at the data
+##################################################################
+
+# Visualise based on geographical location and density of points: 
+fig = housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, aplha=0.2)
+# alpha is the blending value which lets you see the density of points.
+# The blending is based on how many points are overlapping.
+plt.savefig("./figs/housing_geo_density.pdf")
+plt.close()
+print()
+print("Created a scatterplot of the geographic location of the datapoints with blending to see the density in /figs named housing_geo_density.pdf")
+
+# Now to see housing price with geographic location and population size
+fig = housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, s=housing["population"] / 100, label="population", c="median_house_value", cmap="jet", colorbar=True, legend=True, sharex=False, figsize=(13, 10))
+# s is for the size of the datapoints in the scatterplot
+# c is for their colour
+plt.savefig("./figs/housing_geo_val_pop.pdf")
+plt.close()
+print()
+print("Created a scatterplot of the geographic location of the datapoints visualising both the population size and the median housing value in /figs named housing_geo_val_pop.pdf")
