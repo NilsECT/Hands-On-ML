@@ -88,3 +88,26 @@ plt.savefig("./figs/income_categories.pdf")
 plt.close()
 print()
 print("Created a barplot of the housing income categories in /figs named income_categories.pdf")
+
+# can use StratifiedShuffledSplit from scikit-learn now or you can do it as in line 13 in main.py
+# here I write code for future reference, as it seems good for cross-validation
+
+from sklearn.model_selection import StratifiedShuffleSplit
+
+# generates 10 different splits
+splitter = StratifiedShuffleSplit(n_splits=10, test_size=0.2, random_state=42)
+strat_splits = []
+
+for train_index, test_index in splitter.split(housing, housing["income_cat"]):
+    strat_train_set_n = housing.iloc[train_index]
+    strat_test_set_n = housing.iloc[test_index]
+
+    strat_splits.append([strat_train_set_n, strat_test_set_n])
+
+# use the first split
+strat_train_set, strat_test_set = strat_splits[0]
+
+# see if the splitting was done in correct proportions
+print()
+print("Taking a look at the proportions of each income category in the test set:")
+print(strat_test_set["income_cat"].value_counts() / len(strat_test_set))
