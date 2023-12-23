@@ -1,5 +1,6 @@
 from housing_data import load_housing_data
 import numpy as np
+import pandas as pd
 
 # import data
 housing = load_housing_data()
