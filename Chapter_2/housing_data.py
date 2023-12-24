@@ -176,3 +176,36 @@ print(corr_matrix["median_house_value"].sort_values(ascending=False))
 # We now go through a more detailed process of cleaning the data
 # this process will be repeated with a pipeline in the main file (muuuuuch quicker)
 ##################################################################
+
+# restart-ish
+housing = strat_train_set.drop("median_house_value", axis=1)
+housing_labels = strat_train_set["median_house_value"].copy()
+
+from sklearn.impute import SimpleImputer
+
+imputer = SimpleImputer(strategy="median")
+
+# imputing only numeric values
+housing_num = housing.select_dtypes(include=[np.number])
+imputer.fit(housing_num)
+
+# imputer stores the median values of the attributes in statistics_
+# apply imputation on the dataset
+
+X = imputer.transform(housing_num)  # returns a numpy array
+housing_tr = pd.DataFrame(X, columns=housing_num.columns, index=housing_num.index)
+
+# dealing with text attributes
+housing_cat = housing[["ocean_proximity"]]
+
+from sklearn.preprocessing import OrdinalEncoder
+
+ordinal_encoder = OrdinalEncoder()
+housing_cat_encoded = ordinal_encoder.fit_transform(housing_cat)
+
+# better to ohe innit m8
+from sklearn.preprocessing import OneHotEncoder
+
+cat_encoder = OneHotEncoder()
+housing_cat_1hot = cat_encoder.fit_transform(housing_cat) # sparse matrix
+
