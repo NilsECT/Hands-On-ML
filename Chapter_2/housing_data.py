@@ -158,3 +158,21 @@ plt.savefig("./figs/housing_scatter_matrix.pdf")
 plt.close()
 print()
 print("Created a correlation scatterplot of some housing attributes. The figure can be found at ./figs/housing_scatter_matrix.pdf")
+
+# taking a closer look at correlations of the median house value and relative number of rooms, bedrooms and population
+
+housing["rooms_per_house"] = housing["total_rooms"] / housing["households"]
+housing["bedrooms_ratio"] = housing["total_bedrooms"] / housing["total_rooms"]
+housing["people_per_house"] = housing["population"] / housing["households"]
+
+corr_matrix = housing.corr(numeric_only=True)
+
+print()
+print("Correlation, using Pearson's r, of median house value. There are some new, more useful, attributes:")
+print(corr_matrix["median_house_value"].sort_values(ascending=False))
+
+##################################################################
+# We've explored the data
+# We now go through a more detailed process of cleaning the data
+# this process will be repeated with a pipeline in the main file (muuuuuch quicker)
+##################################################################
