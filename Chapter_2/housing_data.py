@@ -116,7 +116,7 @@ print(strat_test_set["income_cat"].value_counts() / len(strat_test_set))
 ##################################################################
 
 # Visualise based on geographical location and density of points: 
-fig = housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, aplha=0.2)
+fig = housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, alpha=0.2)
 # alpha is the blending value which lets you see the density of points.
 # The blending is based on how many points are overlapping.
 plt.savefig("./figs/housing_geo_density.pdf")
@@ -132,3 +132,29 @@ plt.savefig("./figs/housing_geo_val_pop.pdf")
 plt.close()
 print()
 print("Created a scatterplot of the geographic location of the datapoints visualising both the population size and the median housing value in /figs named housing_geo_val_pop.pdf")
+
+# taking a look at the correlation
+# Pearson's r coefficient is the standard
+# we use Pearson's becuase we don't have too large a dataset
+
+# we can look at correlations through a correlation matix
+# Ocean proximity is still strings, can one-hot-encode, this will be done later
+corr_matrix = housing.corr(numeric_only=True)
+
+print()
+print("Correlation, using Pearson's r, of the median income. 1 is strongly correlated, 0 is not correlated and -1 is strongly negatively correlated:")
+print(corr_matrix["median_income"].sort_values(ascending=False))
+
+# Or we can look at the correlation plots using the pandas plotting
+# can probably figure out how to plot using seaborn but integrated pandas plotting is neat
+# to avoid having 11^2 plots we look at the most promising attributes based on the values from the correlation matrix
+
+from pandas.plotting import scatter_matrix
+
+attributes = ["median_house_value", "median_income", "total_rooms", "housing_median_age"]
+scatter_matrix(housing[attributes], figsize=(12, 8))
+
+plt.savefig("./figs/housing_scatter_matrix.pdf")
+plt.close()
+print()
+print("Created a correlation scatterplot of some housing attributes. The figure can be found at ./figs/housing_scatter_matrix.pdf")
