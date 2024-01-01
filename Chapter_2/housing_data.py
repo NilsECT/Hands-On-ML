@@ -209,3 +209,44 @@ from sklearn.preprocessing import OneHotEncoder
 cat_encoder = OneHotEncoder()
 housing_cat_1hot = cat_encoder.fit_transform(housing_cat) # sparse matrix
 
+# feature scaling
+# -1 to 1 minmax (not the polynimal fit minimax)
+
+from sklearn.preprocessing import MinMaxScaler
+
+min_max_scaler = MinMaxScaler(feature_range=(-1, 1))
+housing_num_min_max_scaled = min_max_scaler.fit_transform(housing_num)
+
+# we will also perform a standard scaling with sklearn
+# for show-off purposes I guess
+# substract the mean and divide by the standard deviation
+# not sensible to outliers
+
+from sklearn.preprocessing import StandardScaler
+
+std_scaler = StandardScaler()
+housing_num_std_scaled = std_scaler.fit_transform(housing_num)
+
+# for features with multiple peaks use radial basis functions (rbf)
+# gamma is the decay rate when moving away from the center, in this case 35
+# use it to create new features to find correlations in the data
+
+from sklearn.metrics.pairwise import rbf_kernel
+
+age_simil_35 = rbf_kernel(housing[["housing_median_age"]], [[35]], gamma=0.1)
+
+# for informative purposes here comes a simple lin.reg with target transformation
+print()
+print("Performing a simple linear regression with target transformation")
+
+from sklearn.linear_model import LinearRegression
+
+target_scaler = StandardScaler()
+scaled_labels = target_scaler.fit_transform(housing_labels.to_frame())
+
+model = LinearRegression()
+model.fit(housing[["median_income"]], scaled_labels)
+some_new_data = housing[["median_income"]].iloc[:5] # fake new data
+
+scaled_predictions = model.predict(some_new_data)
+predictions = target_scaler.inverse_transform(scaled_predictions)
