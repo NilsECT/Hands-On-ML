@@ -250,3 +250,12 @@ some_new_data = housing[["median_income"]].iloc[:5] # fake new data
 
 scaled_predictions = model.predict(some_new_data)
 predictions = target_scaler.inverse_transform(scaled_predictions)
+
+# a better version of the above example
+
+from sklearn.compose import TransformedTargetRegressor
+
+model = TransformedTargetRegressor(LinearRegression, transformer=StandardScaler())
+model.fit(housing[["median_income"]], housing_labels)
+predictions = model.predict(some_new_data)
+
