@@ -255,7 +255,76 @@ predictions = target_scaler.inverse_transform(scaled_predictions)
 
 from sklearn.compose import TransformedTargetRegressor
 
-model = TransformedTargetRegressor(LinearRegression, transformer=StandardScaler())
+model = TransformedTargetRegressor(LinearRegression(), transformer = StandardScaler())
 model.fit(housing[["median_income"]], housing_labels)
 predictions = model.predict(some_new_data)
+
+# create a custom log-transformer
+
+from sklearn.preprocessing import FunctionTransformer
+
+log_transformer = FunctionTransformer(np.log, inverse_func=np.exp)
+log_pop = log_transformer.transform(housing[["population"]])
+
+# custom rbf transformer
+
+rbf_transformer = FunctionTransformer(rbf_kernel, kw_args=dict(Y=[[35.]], gamma=0.1))
+age_simil_35 = rbf_transformer.transform(housing[["housing_median_age"]])
+
+# rbf does not distinguish between features
+# menaing: if it is fed two features it will calculate the Euclidean norm to measure similarity
+
+# utilising this we can measure geographic similarities between districts and San Francisco
+
+sf_coords = 37.7749, -122.41    # coordinates of SF -tuple-
+sf_transformer = FunctionTransformer(rbf_kernel, kw_args=dict(Y=[sf_coords], gamma=0.1))
+sf_simil = sf_transformer.transform(housing[["latitude", "longitude"]])
+
+# IDK if this will be used but the book does it and it's handy for future reference:
+# transformer that calculates the ratio between two features
+
+ratio_transformer = FunctionTransformer(lambda X: X[:, [0]] / X[:, [1]])
+
+# but what if you want to train your custom transformers?
+# A: need to write a class (duck style!)
+
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.utils.validation import check_array, check_is_fitted
+# utils.validation has functions to validate inputs, skipped here but production should have them
+
+from sklearn.cluster import KMeans
+
+class ClusterSimilarities(BaseEstimator, TransformerMixin):
+    # should have a inverse_transform method too
+    # can pass it into check_estimator() from sklearn.utils.estimator_checks
+    
+    def __init__(self, n_clusters=10, gamma=0.1, random_state=None):
+        self.n_clusters = n_clusters
+        self.gamma = gamma
+        self.random_state = random_state
+        
+    # need y even if we don't use it
+    def fit(self, X, y=None, sample_weight=None):
+        self.kmeans_ = KMeans(self.n_clusters, random_state=self.random_state)
+        self.kmeans_.fit(X, sample_weight=sample_weight)
+        
+        # needs a get_feature_names_in_ if it is fed a dataframe
+        
+        return self # always return self
+    
+    def transform(self, X):
+        return rbf_kernel(X, self.kmeans_.cluster_centers_, gamma=self.gamma)
+    
+    def get_feature_names_out(self, names=None):
+        return  [f"Cluster {i} similarity" for i in range(self.n_clusters)]
+
+# finding the cluster centers of the districts weighted on median house value
+
+cluster_simil = ClusterSimilarities(random_state=42)    # setting a random state for reproducibility
+similarities = cluster_simil.fit_transform(housing[["latitude", "longitude"]], sample_weight=housing_labels)
+
+print()
+print("Three first rows' (districts) similarities to the 10 clusters:")
+print()
+print(similarities[:3].round(2))
 
