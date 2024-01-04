@@ -16,3 +16,19 @@ strat_train_set, strat_test_set = train_test_split(housing, test_size=0.2, strat
 # throw away income category column as you won't use it anymore
 for set_ in (strat_train_set, strat_test_set):
     set_.drop("income_cat", axis=1, inplace=True)
+
+# find the numerical features of the dataset
+housing_num = housing.select_dtypes(include=[np.number])
+
+# imputing the data
+
+from sklearn.pipeline import make_pipeline  # calls fit_transform() sequentially until it reaches the last estimator where it calls fit()
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+
+# pipeline for numerical features: impute and scale
+num_pipeline = make_pipeline(SimpleImputer(strategy="median"), StandardScaler())
+
+housing_num_prepared = num_pipeline.fit_transform(housing_num)
+df_housing_num_prepared = pd.DataFrame(housing_num_prepared, columns=num_pipeline.get_feature_names_out(), index=housing_num.index)
+
